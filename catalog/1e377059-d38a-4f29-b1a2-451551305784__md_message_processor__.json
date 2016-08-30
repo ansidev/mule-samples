@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "localhost:8080",
+            "typeId": "POST:/orders_request"
+        }
+    },
+    "id": "1e377059-d38a-4f29-b1a2-451551305784",
+    "version": "5.2.0.0"
+}

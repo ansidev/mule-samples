@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="localhost:8081" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="xml-to-json-transform-message-flow">
+        <http:listener config-ref="localhost:8081" path="/place-order-xml" allowedMethods="GET,POST" metadata:id="4db9bdef-90fe-4909-b9c5-069f4394b90a" doc:name="HTTP"/>
+        <dw:transform-message metadata:id="1e377059-d38a-4f29-b1a2-451551305784" doc:name="Transform Message">
+            <dw:input-payload doc:sample="dw-tshirt-inputsample.xml"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <response>
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+        </response>
+
+    </flow>
+    <flow name="json-to-xml-transform-message-flow">
+        <http:listener config-ref="localhost:8081" path="/place-order-json" allowedMethods="GET,POST" metadata:id="4db9bdef-90fe-4909-b9c5-069f4394b90a" doc:name="HTTP"/>
+        <dw:transform-message metadata:id="1e377059-d38a-4f29-b1a2-451551305784" doc:name="Transform Message">
+            <dw:input-payload doc:sample="order.json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%var shippingFee = 2 unless payload.order.shop == "FPTShop" otherwise 0
+---
+{
+	"checkout": {
+		"product": {
+			"model": payload.order.product.model,
+			"price": payload.order.product.price,
+			"item_amount": payload.order.item_amount,
+			"size": payload.order.product.size
+		},
+		"payment": {
+			"payment-type": payload.order.payment.payment-type,
+			"currency": payload.order.payment.currency,
+			"installments": payload.order.payment.installments
+		},
+		"total_checkout": {
+			"price": payload.order.product.price * payload.order.item_amount + shippingFee,
+			"currency": payload.order.payment.currency
+		}
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <response>
+            <set-property propertyName="Content-Type" value="application/xml" doc:name="Property"/>
+        </response>
+
+    </flow>
+</mule>

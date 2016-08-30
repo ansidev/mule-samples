@@ -1,0 +1,16 @@
+{
+  "order": {
+    "product": {
+      "price": "5",
+      "model": "ABC T-shirt",
+      "size": "L"
+    },
+    "item_amount": "3",
+    "payment": {
+      "payment-type": "credit-card",
+      "currency": "VND",
+      "installments": "1"
+    },
+    "shop": "Montana Place"
+  }
+}
